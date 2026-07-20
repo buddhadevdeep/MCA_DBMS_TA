@@ -104,6 +104,182 @@ Each column must have a data type.
 
 ---
 
+# CHAR vs VARCHAR in DBMS
+
+## Definition
+
+### CHAR
+- `CHAR` (Character) is a **fixed-length** data type.
+- It always stores the specified number of characters.
+- If the entered value is shorter, the remaining space is filled with blank spaces.
+
+### VARCHAR
+- `VARCHAR` (Variable Character) is a **variable-length** data type.
+- It stores only the actual characters entered along with a small amount of extra space (1–2 bytes) to store the length.
+- No blank spaces are added.
+
+---
+
+# Difference Between CHAR and VARCHAR
+
+| Feature | CHAR | VARCHAR |
+|---------|------|----------|
+| Full Form | Character | Variable Character |
+| Length | Fixed | Variable |
+| Storage | Always reserves full size | Uses only required size |
+| Extra Storage | No | Uses 1–2 bytes to store length |
+| Padding | Adds blank spaces | No padding |
+| Speed | Slightly faster | Slightly slower |
+| Memory Usage | More | Less |
+| Best For | Fixed-size data | Variable-size data |
+
+---
+
+# Example
+
+```sql
+CREATE TABLE Student (
+    RollNo CHAR(5),
+    Name VARCHAR(50)
+);
+```
+
+Insert data:
+
+```sql
+INSERT INTO Student VALUES ('12', 'Rahul');
+```
+
+### Stored Data
+
+**CHAR(5)**
+
+```
+'12   '
+```
+
+(3 spaces are automatically added)
+
+**VARCHAR(50)**
+
+```
+'Rahul'
+```
+
+(Only actual characters are stored)
+
+---
+
+# Advantages of CHAR
+
+- Faster retrieval for fixed-length data.
+- Simple storage management.
+- Good performance when all values have the same length.
+- Predictable memory allocation.
+
+## Disadvantages of CHAR
+
+- Wastes storage space for short values.
+- Blank spaces are added automatically.
+- Not suitable for variable-length text.
+
+---
+
+# Advantages of VARCHAR
+
+- Saves storage space.
+- Stores only actual data.
+- Ideal for variable-length values.
+- Efficient for large text fields where lengths differ.
+
+## Disadvantages of VARCHAR
+
+- Slightly slower than `CHAR` because the database manages variable lengths.
+- Uses 1–2 extra bytes to store the string length.
+- Memory allocation is less predictable.
+
+---
+
+# Applications of CHAR
+
+Use `CHAR` when data has a **fixed length**, such as:
+
+- Gender (`M`, `F`)
+- Country Code (`IN`, `US`)
+- PAN Number (`ABCDE1234F`)
+- Aadhaar Number (`123456789012`)
+- PIN Code (if stored as text)
+- Employee Code
+- Blood Group
+- Yes/No values (`Y`, `N`)
+
+Example:
+
+```sql
+Gender CHAR(1),
+CountryCode CHAR(2),
+PAN CHAR(10)
+```
+
+---
+
+# Applications of VARCHAR
+
+Use `VARCHAR` when data length **varies**, such as:
+
+- Name
+- Email
+- Address
+- City
+- Phone Number
+- Product Name
+- Description
+- Comments
+- Username
+
+Example:
+
+```sql
+Name VARCHAR(100),
+Email VARCHAR(255),
+Address VARCHAR(500)
+```
+
+---
+
+# Real-World Example
+
+```sql
+CREATE TABLE Employee
+(
+    EmployeeID INT PRIMARY KEY,
+    EmployeeCode CHAR(6),
+    Gender CHAR(1),
+    CountryCode CHAR(2),
+    Name VARCHAR(100),
+    Email VARCHAR(255),
+    Address VARCHAR(500),
+    Department VARCHAR(50)
+);
+```
+
+---
+
+# Summary
+
+| CHAR | VARCHAR |
+|------|----------|
+| Fixed-length data type | Variable-length data type |
+| May waste storage | Saves storage |
+| Faster for fixed-size data | Flexible for different lengths |
+| Pads with spaces | No padding |
+| Best for IDs, codes, gender | Best for names, emails, addresses |
+
+## Quick Rule
+
+- ✅ Use **CHAR** for **fixed-length** values.
+- ✅ Use **VARCHAR** for **variable-length** text.
+
 # 4. Constraints
 
 Constraints define rules for the data stored in a table.
