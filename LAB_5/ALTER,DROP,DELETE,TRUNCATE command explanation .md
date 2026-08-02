@@ -1266,7 +1266,7 @@ The **Student** table is completely removed from the database.
 |Table Exists After Command|✅ Yes|✅ Yes|❌ No|
 |Can Rollback|✅ Yes (before COMMIT)|❌ Usually No|❌ No|
 |AUTO_INCREMENT Reset|❌ No|✅ Yes (MySQL)|N/A|
-|Speed|Slowest|Faster|Fastest|
+|Speed|Slowest|Fastest|Faster
 
 ---
 
