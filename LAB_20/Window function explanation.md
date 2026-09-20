@@ -9,6 +9,7 @@
 
 # 📌 Objective
 
+
 The objective of this lab is to understand **Window Functions** in SQL
 in a simple, practical, student-friendly way.
 
