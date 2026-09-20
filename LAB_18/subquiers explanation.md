@@ -206,40 +206,6 @@ It is commonly used with
 
 ---
 
-## Syntax
-
-```sql
-SELECT *
-FROM table_name
-WHERE column=
-(
-SELECT expression
-FROM table_name
-);
-```
-
----
-
-## Example
-
-```sql
-SELECT *
-FROM STUDENT
-WHERE SPI=
-(
-SELECT MAX(SPI)
-FROM STUDENT
-);
-```
-
----
-
-## Real World Example
-
-Find employee having highest salary.
-
----
-
 # Single Row Subquery
 
 A Single Row Subquery returns only one row.
