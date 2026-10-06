@@ -1,0 +1,317 @@
+# LAB 22 – CTE SOLUTIONS
+
+-- 1. Display top 3 highest amount orders.
+
+WITH CTE AS
+(
+    SELECT *,
+           DENSE_RANK() OVER (ORDER BY AMOUNT DESC) AS RANK
+    FROM CUSTOMER_ALL
+)
+SELECT *
+FROM CTE
+WHERE RANK <= 3;
+
+
+-- 2. Display second highest order amount.
+
+WITH CTE AS
+(
+    SELECT *,
+           DENSE_RANK() OVER (ORDER BY AMOUNT DESC) AS RANK
+    FROM CUSTOMER_ALL
+)
+SELECT *
+FROM CTE
+WHERE RANK = 2;
+
+
+-- 3. Display customers whose order amount is greater than category average amount.
+
+WITH CTE AS
+(
+    SELECT CATEGORY,
+           AVG(AMOUNT) AS AVG_AMOUNT
+    FROM CUSTOMER_ALL
+    GROUP BY CATEGORY
+)
+SELECT C.*
+FROM CUSTOMER_ALL C
+JOIN CTE A
+ON C.CATEGORY = A.CATEGORY
+WHERE C.AMOUNT > A.AVG_AMOUNT;
+
+
+-- 4. Display categories having average amount greater than 30000.
+
+WITH CTE AS
+(
+    SELECT CATEGORY,
+           AVG(AMOUNT) AS AVG_AMOUNT
+    FROM CUSTOMER_ALL
+    GROUP BY CATEGORY
+)
+SELECT *
+FROM CTE
+WHERE AVG_AMOUNT > 30000;
+
+
+-- 5. Display highest amount order from each category.
+
+WITH CTE AS
+(
+    SELECT *,
+           DENSE_RANK() OVER
+           (
+               PARTITION BY CATEGORY
+               ORDER BY AMOUNT DESC
+           ) AS RANK
+    FROM CUSTOMER_ALL
+)
+SELECT *
+FROM CTE
+WHERE RANK = 1;
+
+
+-- 6. Display lowest amount order from each category.
+
+WITH CTE AS
+(
+    SELECT *,
+           DENSE_RANK() OVER
+           (
+               PARTITION BY CATEGORY
+               ORDER BY AMOUNT
+           ) AS RANK
+    FROM CUSTOMER_ALL
+)
+SELECT *
+FROM CTE
+WHERE RANK = 1;
+
+
+-- 7. Display categories having more than 3 orders.
+
+WITH CTE AS
+(
+    SELECT CATEGORY,
+           COUNT(*) AS TOTAL_ORDERS
+    FROM CUSTOMER_ALL
+    GROUP BY CATEGORY
+)
+SELECT *
+FROM CTE
+WHERE TOTAL_ORDERS > 3;
+
+
+-- 8. Display city-wise total order amount.
+
+WITH CTE AS
+(
+    SELECT CITY,
+           SUM(AMOUNT) AS TOTAL_AMOUNT
+    FROM CUSTOMER_ALL
+    GROUP BY CITY
+)
+SELECT *
+FROM CTE;
+
+
+-- 9. Display category having highest average order amount.
+
+WITH CTE AS
+(
+    SELECT CATEGORY,
+           AVG(AMOUNT) AS AVG_AMOUNT
+    FROM CUSTOMER_ALL
+    GROUP BY CATEGORY
+)
+SELECT TOP 1 *
+FROM CTE
+ORDER BY AVG_AMOUNT DESC;
+
+
+-- 10. Display cumulative order amount in ascending order of amount.
+
+WITH CTE AS
+(
+    SELECT *,
+           SUM(AMOUNT) OVER (ORDER BY AMOUNT) AS TOTAL
+    FROM CUSTOMER_ALL
+)
+SELECT *
+FROM CTE;
+
+
+-- 11. Display category-wise top 2 highest amount orders.
+
+WITH CTE AS
+(
+    SELECT *,
+           DENSE_RANK() OVER
+           (
+               PARTITION BY CATEGORY
+               ORDER BY AMOUNT DESC
+           ) AS RANK
+    FROM CUSTOMER_ALL
+)
+SELECT *
+FROM CTE
+WHERE RANK <= 2;
+
+
+-- 12. Display customers whose amount is closest to category average amount.
+
+WITH CTE AS
+(
+    SELECT *,
+           AVG(AMOUNT) OVER (PARTITION BY CATEGORY) AS AVG_AMOUNT
+    FROM CUSTOMER_ALL
+),
+CTE2 AS
+(
+    SELECT *,
+           ABS(AMOUNT - AVG_AMOUNT) AS DIFFERENCE
+    FROM CTE
+),
+CTE3 AS
+(
+    SELECT *,
+           DENSE_RANK() OVER
+           (
+               PARTITION BY CATEGORY
+               ORDER BY DIFFERENCE
+           ) AS RANK
+    FROM CTE2
+)
+SELECT *
+FROM CTE3
+WHERE RANK = 1;
+
+
+-- 13. Display previous, current and next order amount together.
+
+WITH CTE AS
+(
+    SELECT ORDERID,
+           CNAME,
+           AMOUNT,
+           LAG(AMOUNT) OVER (ORDER BY ORDERID) AS PREVIOUS_AMOUNT,
+           LEAD(AMOUNT) OVER (ORDER BY ORDERID) AS NEXT_AMOUNT
+    FROM CUSTOMER_ALL
+)
+SELECT *
+FROM CTE;
+
+
+-- 14. Display customers whose amount is greater than previous customer's amount.
+
+WITH CTE AS
+(
+    SELECT *,
+           LAG(AMOUNT) OVER (ORDER BY ORDERID) AS PREVIOUS_AMOUNT
+    FROM CUSTOMER_ALL
+)
+SELECT *
+FROM CTE
+WHERE AMOUNT > PREVIOUS_AMOUNT;
+
+
+-- 15. Display customers whose rank and dense rank are different.
+
+WITH CTE AS
+(
+    SELECT *,
+           RANK() OVER (ORDER BY AMOUNT DESC) AS RANK1,
+           DENSE_RANK() OVER (ORDER BY AMOUNT DESC) AS RANK2
+    FROM CUSTOMER_ALL
+)
+SELECT *
+FROM CTE
+WHERE RANK1 <> RANK2;
+
+
+-- 16. Display orders whose amount is neither highest nor lowest in their category.
+
+WITH CTE AS
+(
+    SELECT *,
+           MAX(AMOUNT) OVER (PARTITION BY CATEGORY) AS MAX_AMOUNT,
+           MIN(AMOUNT) OVER (PARTITION BY CATEGORY) AS MIN_AMOUNT
+    FROM CUSTOMER_ALL
+)
+SELECT *
+FROM CTE
+WHERE AMOUNT <> MAX_AMOUNT
+  AND AMOUNT <> MIN_AMOUNT;
+
+
+-- 17. Display category-wise difference between highest and lowest amount.
+
+WITH CTE AS
+(
+    SELECT CATEGORY,
+           MAX(AMOUNT) AS MAX_AMOUNT,
+           MIN(AMOUNT) AS MIN_AMOUNT
+    FROM CUSTOMER_ALL
+    GROUP BY CATEGORY
+)
+SELECT CATEGORY,
+       MAX_AMOUNT - MIN_AMOUNT AS DIFFERENCE
+FROM CTE;
+
+
+-- 18. Display customers whose amount is greater than all FURNITURE category orders.
+
+WITH CTE AS
+(
+    SELECT MAX(AMOUNT) AS MAX_AMOUNT
+    FROM CUSTOMER_ALL
+    WHERE CATEGORY = 'FURNITURE'
+)
+SELECT *
+FROM CUSTOMER_ALL
+WHERE AMOUNT > (SELECT MAX_AMOUNT FROM CTE);
+
+
+-- 19. Display categories where all orders are above 10000.
+
+WITH CTE AS
+(
+    SELECT CATEGORY,
+           MIN(AMOUNT) AS MIN_AMOUNT
+    FROM CUSTOMER_ALL
+    GROUP BY CATEGORY
+)
+SELECT *
+FROM CTE
+WHERE MIN_AMOUNT > 10000;
+
+
+-- 20. Display customers whose amount difference from category topper is minimum.
+
+WITH CTE AS
+(
+    SELECT *,
+           MAX(AMOUNT) OVER (PARTITION BY CATEGORY) AS TOP_AMOUNT
+    FROM CUSTOMER_ALL
+),
+CTE2 AS
+(
+    SELECT *,
+           TOP_AMOUNT - AMOUNT AS DIFFERENCE
+    FROM CTE
+),
+CTE3 AS
+(
+    SELECT *,
+           DENSE_RANK() OVER
+           (
+               PARTITION BY CATEGORY
+               ORDER BY DIFFERENCE
+           ) AS RANK
+    FROM CTE2
+)
+SELECT *
+FROM CTE3
+WHERE RANK = 1;
